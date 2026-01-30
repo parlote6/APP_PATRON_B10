@@ -1,33 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import CloseIcon from './assets/Vector_close.svg';
-import OpenIcon from './assets/Vector_open.svg';
 
 interface AnimatingIconProps {
-  mouseX: ReturnType<typeof useMotionValue>;
+  mousePos: {
+    x: ReturnType<typeof useMotionValue>;
+    y: ReturnType<typeof useMotionValue>;
+  };
+  size: number;
 }
 
-const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mouseX }) => {
-  const pathDataOpen = "M72.6173 108.495V92.1986L11.39 0.5H0.5V16.8091L61.7273 108.495H72.6173Z";
-  const pathDataClose = "M3.60404 0.5H0.5V5.15611L69.5003 108.495H72.6173V103.839L3.60404 0.5Z";
+const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size }) => {
+  const pathDataOpen = "M12.1 0.5 C12.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,17.16 0.5,17.16 C0.5,17.16 61.5,108.49 61.5,108.49 C61.5,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,91.09 72.74,91.09 C72.74,91.09 12.1,0.5 12.1,0.5z";
+  const pathDataClose = "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z";
 
-  const path = useTransform(
-    mouseX,
-    [0, window.innerWidth],
-    [pathDataClose, pathDataOpen],
-    { clamp: true }
-  );
+  const iconRef = useRef<HTMLDivElement>(null);
+  const distance = useMotionValue(Infinity);
+
+  useEffect(() => {
+    const updateDistance = () => {
+      if (iconRef.current) {
+        const rect = iconRef.current.getBoundingClientRect();
+        const iconCenterX = rect.left + rect.width / 2;
+        const iconCenterY = rect.top + rect.height / 2;
+        const mx = mousePos.x.get();
+        const my = mousePos.y.get();
+        const newDist = Math.sqrt(Math.pow(mx - iconCenterX, 2) + Math.pow(my - iconCenterY, 2));
+        distance.set(newDist);
+      }
+    };
+    
+    const unsubscribeX = mousePos.x.onChange(updateDistance);
+    const unsubscribeY = mousePos.y.onChange(updateDistance);
+    
+    return () => {
+      unsubscribeX();
+      unsubscribeY();
+    };
+  }, [mousePos.x, mousePos.y, distance]);
+  
+  const progress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
+  const path = useTransform(progress, [0, 1], [pathDataClose, pathDataOpen]);
 
   return (
-    <motion.svg
-      width="74"
-      height="109"
-      viewBox="0 0 74 109"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <motion.path d={path} stroke="#FF5521" strokeMiterlimit="10" />
-    </motion.svg>
+    <div ref={iconRef} style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <motion.svg
+        width="74"
+        height="109"
+        viewBox="0 0 74 109"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <motion.path d={path} stroke="#FF5521" strokeMiterlimit="10" />
+      </motion.svg>
+    </div>
   );
 };
 
@@ -37,7 +62,10 @@ interface CustomAnimationProps {
 
 const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
   const [grid, setGrid] = useState({ cols: 0, rows: 0 });
-  const mouseX = useMotionValue(0);
+  const mousePos = {
+    x: useMotionValue(0),
+    y: useMotionValue(0),
+  };
 
   useEffect(() => {
     const calculateGrid = () => {
@@ -55,11 +83,12 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
+      mousePos.x.set(e.clientX);
+      mousePos.y.set(e.clientY);
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX]);
+  }, [mousePos.x, mousePos.y]);
 
   return (
     <div
@@ -73,18 +102,11 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
       }}
     >
       {Array.from({ length: grid.cols * grid.rows }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: size,
-            height: size,
-          }}
-        >
-          <AnimatingIcon mouseX={mouseX} />
-        </div>
+            <AnimatingIcon 
+              key={i}
+              mousePos={mousePos}
+              size={size}
+            />
       ))}
     </div>
   );
