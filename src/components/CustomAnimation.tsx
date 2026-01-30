@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform, useTime } from 'framer-motion';
 
 interface AnimatingIconProps {
   mousePos: {
@@ -7,14 +7,17 @@ interface AnimatingIconProps {
     y: ReturnType<typeof useMotionValue>;
   };
   size: number;
+  waveFrequency: number;
+  waveAmplitude: number;
 }
 
-const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size }) => {
+const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequency, waveAmplitude }) => {
   const pathDataOpen = "M12.1 0.5 C12.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,17.16 0.5,17.16 C0.5,17.16 61.5,108.49 61.5,108.49 C61.5,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,91.09 72.74,91.09 C72.74,91.09 12.1,0.5 12.1,0.5z";
   const pathDataClose = "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z";
 
   const iconRef = useRef<HTMLDivElement>(null);
   const distance = useMotionValue(Infinity);
+  const time = useTime();
 
   useEffect(() => {
     const updateDistance = () => {
@@ -38,8 +41,10 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size }) => {
     };
   }, [mousePos.x, mousePos.y, distance]);
   
-  const progress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
-  const path = useTransform(progress, [0, 1], [pathDataClose, pathDataOpen]);
+  const hoverProgress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
+  const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency) + 1) / 2 * waveAmplitude);
+  const combinedProgress = useTransform([hoverProgress, waveProgress], ([h, w]) => Math.min(h + w, 1));
+  const path = useTransform(combinedProgress, [0, 1], [pathDataClose, pathDataOpen]);
 
   return (
     <div ref={iconRef} style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -58,9 +63,17 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size }) => {
 
 interface CustomAnimationProps {
   size?: number;
+  horizontalSpacing?: number;
+  waveFrequency?: number;
+  waveAmplitude?: number;
 }
 
-const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
+const CustomAnimation: React.FC<CustomAnimationProps> = ({ 
+  size = 100, 
+  horizontalSpacing = 40,
+  waveFrequency = 1000,
+  waveAmplitude = 0.5,
+}) => {
   const [grid, setGrid] = useState({ cols: 0, rows: 0 });
   const mousePos = {
     x: useMotionValue(0),
@@ -71,7 +84,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
     const calculateGrid = () => {
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
-      const cols = Math.floor(screenWidth / size);
+      const cols = Math.floor(screenWidth / (size - horizontalSpacing));
       const rows = Math.floor(screenHeight / size);
       setGrid({ cols, rows });
     };
@@ -79,7 +92,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
     calculateGrid();
     window.addEventListener('resize', calculateGrid);
     return () => window.removeEventListener('resize', calculateGrid);
-  }, [size]);
+  }, [size, horizontalSpacing]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -94,11 +107,12 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
+        gridTemplateColumns: `repeat(${grid.cols}, ${size - horizontalSpacing}px)`,
         gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
+        justifyContent: 'center',
       }}
     >
       {Array.from({ length: grid.cols * grid.rows }).map((_, i) => (
@@ -106,6 +120,8 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({ size = 100 }) => {
               key={i}
               mousePos={mousePos}
               size={size}
+              waveFrequency={waveFrequency}
+              waveAmplitude={waveAmplitude}
             />
       ))}
     </div>
