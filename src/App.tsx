@@ -6,6 +6,8 @@ function App() {
   const [horizontalSpacing, setHorizontalSpacing] = useState(40);
   const [waveFrequency, setWaveFrequency] = useState(1000);
   const [waveAmplitude, setWaveAmplitude] = useState(0.5);
+  const [numRows, setNumRows] = useState(0); // 0 means auto-calculated
+  const [numCols, setNumCols] = useState(0); // 0 means auto-calculated
 
   return (
     <div>
@@ -19,7 +21,7 @@ function App() {
         borderRadius: '5px'
       }}>
         <div>
-          <label>Size / Rows: {size}</label>
+          <label>Icon Size: {size}</label>
           <input 
             type="range" 
             min="20" 
@@ -29,7 +31,7 @@ function App() {
           />
         </div>
         <div>
-          <label>X Spacing: {horizontalSpacing}</label>
+          <label>Horizontal Spacing: {horizontalSpacing}</label>
           <input 
             type="range" 
             min="0" 
@@ -59,12 +61,34 @@ function App() {
             onChange={(e) => setWaveAmplitude(Number(e.target.value))} 
           />
         </div>
+        <div>
+          <label>Number of Rows (0 for auto): {numRows}</label>
+          <input 
+            type="range" 
+            min="0" 
+            max="50" 
+            value={numRows} 
+            onChange={(e) => setNumRows(Number(e.target.value))} 
+          />
+        </div>
+        <div>
+          <label>Number of Columns (0 for auto): {numCols}</label>
+          <input 
+            type="range" 
+            min="0" 
+            max="50" 
+            value={numCols} 
+            onChange={(e) => setNumCols(Number(e.target.value))} 
+          />
+        </div>
       </div>
       <CustomAnimation 
         size={size}
         horizontalSpacing={horizontalSpacing}
         waveFrequency={waveFrequency}
         waveAmplitude={waveAmplitude}
+        numRows={numRows}
+        numCols={numCols}
       />
     </div>
   )

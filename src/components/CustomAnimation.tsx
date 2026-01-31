@@ -66,6 +66,8 @@ interface CustomAnimationProps {
   horizontalSpacing?: number;
   waveFrequency?: number;
   waveAmplitude?: number;
+  numRows?: number; // New prop for explicit number of rows
+  numCols?: number; // New prop for explicit number of columns
 }
 
 const CustomAnimation: React.FC<CustomAnimationProps> = ({ 
@@ -73,8 +75,10 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
   horizontalSpacing = 40,
   waveFrequency = 1000,
   waveAmplitude = 0.5,
+  numRows,
+  numCols,
 }) => {
-  const [grid, setGrid] = useState({ cols: 0, rows: 0 });
+  const [calculatedGrid, setCalculatedGrid] = useState({ cols: 0, rows: 0 });
   const mousePos = {
     x: useMotionValue(0),
     y: useMotionValue(0),
@@ -84,15 +88,22 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
     const calculateGrid = () => {
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
-      const cols = Math.floor(screenWidth / (size - horizontalSpacing));
-      const rows = Math.floor(screenHeight / size);
-      setGrid({ cols, rows });
+      
+      const effectiveCols = numCols !== undefined && numCols > 0
+        ? numCols 
+        : Math.floor(screenWidth / (size - horizontalSpacing));
+      
+      const effectiveRows = numRows !== undefined && numRows > 0
+        ? numRows 
+        : Math.floor(screenHeight / size);
+      
+      setCalculatedGrid({ cols: effectiveCols, rows: effectiveRows });
     };
 
     calculateGrid();
     window.addEventListener('resize', calculateGrid);
     return () => window.removeEventListener('resize', calculateGrid);
-  }, [size, horizontalSpacing]);
+  }, [size, horizontalSpacing, numRows, numCols]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -103,19 +114,23 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mousePos.x, mousePos.y]);
 
+  const displayCols = numCols !== undefined ? numCols : calculatedGrid.cols;
+  const displayRows = numRows !== undefined ? numRows : calculatedGrid.rows;
+
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${grid.cols}, ${size - horizontalSpacing}px)`,
-        gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
+        gridTemplateColumns: `repeat(${displayCols}, ${size - horizontalSpacing}px)`,
+        gridTemplateRows: `repeat(${displayRows}, ${size}px)`, // Use size for row height
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
         justifyContent: 'center',
+        alignContent: 'center', 
       }}
     >
-      {Array.from({ length: grid.cols * grid.rows }).map((_, i) => (
+      {Array.from({ length: displayCols * displayRows }).map((_, i) => (
             <AnimatingIcon 
               key={i}
               mousePos={mousePos}
