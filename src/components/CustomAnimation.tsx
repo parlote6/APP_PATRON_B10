@@ -3,13 +3,11 @@ import { motion, useMotionValue, useTransform, useTime } from 'framer-motion';
 
 const pathFrames = [
   "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z",
-  "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z",
-  "M1.1 0.5 C1.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,2.66 0.5,2.66 C0.5,2.66 72,108.5 72,108.5 C72,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,106.22 72.62,106.22 C72.62,106.22 1.1,0.5 1.1,0.5z",
-  "M39.6 0.5 C39.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,57.16 0.5,57.16 C0.5,57.16 34,108.49 34,108.49 C34,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,51.09 72.74,51.09 C72.74,51.09 39.6,0.5 39.6,0.5z",
-  "M32.1 0.5 C32.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,47.16 0.5,47.16 C0.5,47.16 41.5,108.49 41.5,108.49 C41.5,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,61.09 72.74,61.09 C72.74,61.09 32.1,0.5 32.1,0.5z"
+  "M2.98 0.5 C2.98,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,2.66 0.5,2.66 C0.5,2.66 70.13,108.5 70.13,108.5 C70.13,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,106.34 72.62,106.34 C72.62,106.34 2.98,0.5 2.98,0.5z",
+  "M17.6 0.5 C17.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,24.66 0.5,24.66 C0.5,24.66 54.75,108.49 54.75,108.49 C54.75,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,83.59 72.74,83.59 C72.74,83.59 17.6,0.5 17.6,0.5z"
 ];
 
-const keyTimes = [0, 0.0416667, 0.25, 0.5833333, 1];
+const keyTimes = [0, 0.375, 1];
 
 interface AnimatingIconProps {
   mousePos: {
@@ -19,12 +17,14 @@ interface AnimatingIconProps {
   size: number;
   waveFrequency: number;
   waveAmplitude: number;
+  randomnessFactor: number; // New prop for randomness control
 }
 
-const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequency, waveAmplitude }) => {
+const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequency, waveAmplitude, randomnessFactor }) => {
   const iconRef = useRef<HTMLDivElement>(null);
   const distance = useMotionValue(Infinity);
   const time = useTime();
+  const randomSeed = useRef(Math.random()); // Unique random value for each instance
 
   useEffect(() => {
     const updateDistance = () => {
@@ -49,8 +49,15 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequ
   }, [mousePos.x, mousePos.y, distance]);
   
   const hoverProgress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
-  const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency) + 1) / 2 * waveAmplitude);
-  const combinedProgress = useTransform([hoverProgress, waveProgress], ([h, w]) => Math.min(h + w, 1));
+  const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency + randomSeed.current * 10) + 1) / 2 * waveAmplitude); // Add randomSeed to wave phase
+  
+  // Combine hover, wave, and randomness
+  const combinedProgress = useTransform([hoverProgress, waveProgress], ([h, w]) => {
+    // Introduce randomness by offsetting the base progress
+    const randomOffset = (randomSeed.current - 0.5) * randomnessFactor; // -0.5 to center the offset
+    return Math.min(Math.max(0, h + w + randomOffset), 1); // Clamp between 0 and 1
+  });
+  
   const path = useTransform(combinedProgress, keyTimes, pathFrames);
 
   return (
@@ -73,6 +80,7 @@ interface CustomAnimationProps {
   horizontalSpacing?: number;
   waveFrequency?: number;
   waveAmplitude?: number;
+  randomnessFactor?: number; // New prop for randomness control
   numRows?: number; 
   numCols?: number; 
 }
@@ -82,6 +90,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
   horizontalSpacing = 40,
   waveFrequency = 1000,
   waveAmplitude = 0.5,
+  randomnessFactor = 0, // Default to no randomness
   numRows,
   numCols,
 }) => {
@@ -144,6 +153,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
               size={size}
               waveFrequency={waveFrequency}
               waveAmplitude={waveAmplitude}
+              randomnessFactor={randomnessFactor}
             />
       ))}
     </div>
