@@ -49,13 +49,11 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequ
   }, [mousePos.x, mousePos.y, distance]);
   
   const hoverProgress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
-  const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency + randomSeed.current * 10) + 1) / 2 * waveAmplitude); // Add randomSeed to wave phase
+  const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency + randomSeed.current * randomnessFactor * 10) + 1) / 2 * waveAmplitude); // Add randomSeed to wave phase
   
-  // Combine hover, wave, and randomness
+  // Combine hover and wave
   const combinedProgress = useTransform([hoverProgress, waveProgress], ([h, w]) => {
-    // Introduce randomness by offsetting the base progress
-    const randomOffset = (randomSeed.current - 0.5) * randomnessFactor; // -0.5 to center the offset
-    return Math.min(Math.max(0, h + w + randomOffset), 1); // Clamp between 0 and 1
+    return Math.min(Math.max(0, h + w), 1); // Clamp between 0 and 1
   });
   
   const path = useTransform(combinedProgress, keyTimes, pathFrames);

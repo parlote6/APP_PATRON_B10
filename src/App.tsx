@@ -1,92 +1,33 @@
-import React, { useState } from 'react';
+import { useControls } from 'leva';
 import CustomAnimation from './components/CustomAnimation';
 
 function App() {
-  const [size, setSize] = useState(100);
-  const [horizontalSpacing, setHorizontalSpacing] = useState(40);
-  const [waveFrequency, setWaveFrequency] = useState(1000);
-  const [waveAmplitude, setWaveAmplitude] = useState(0.5);
-  const [numRows, setNumRows] = useState(0); // 0 means auto-calculated
-  const [numCols, setNumCols] = useState(0); // 0 means auto-calculated
+  const { 
+    size, 
+    horizontalSpacing, 
+    waveFrequency, 
+    waveAmplitude, 
+    randomnessFactor, 
+    numRows, 
+    numCols 
+  } = useControls({
+    size: { value: 100, min: 20, max: 200, step: 1, label: 'size' },
+    horizontalSpacing: { value: 40, min: 0, max: 80, step: 1, label: 'horizontalSpacing' },
+    waveFrequency: { value: 1000, min: 100, max: 2000, step: 10, label: 'waveFrequency' },
+    waveAmplitude: { value: 0.5, min: 0, max: 1, step: 0.01, label: 'waveAmplitude' },
+    randomnessFactor: { value: 0, step: 0.01, label: 'randomnessFactor' },
+    numRows: { value: 0, min: 0, max: 50, step: 1, label: 'numRows' },
+    numCols: { value: 0, min: 0, max: 50, step: 1, label: 'numCols' },
+  });
 
   return (
     <div>
-      <div style={{
-        position: 'fixed',
-        top: 10,
-        left: 10,
-        zIndex: 100,
-        background: 'rgba(255, 255, 255, 0.8)',
-        padding: '10px',
-        borderRadius: '5px'
-      }}>
-        <div>
-          <label>Icon Size: {size}</label>
-          <input 
-            type="range" 
-            min="20" 
-            max="200" 
-            value={size} 
-            onChange={(e) => setSize(Number(e.target.value))} 
-          />
-        </div>
-        <div>
-          <label>Horizontal Spacing: {horizontalSpacing}</label>
-          <input 
-            type="range" 
-            min="0" 
-            max="80" 
-            value={horizontalSpacing} 
-            onChange={(e) => setHorizontalSpacing(Number(e.target.value))} 
-          />
-        </div>
-        <div>
-          <label>Wave Frequency: {waveFrequency}</label>
-          <input 
-            type="range" 
-            min="100" 
-            max="2000" 
-            value={waveFrequency} 
-            onChange={(e) => setWaveFrequency(Number(e.target.value))} 
-          />
-        </div>
-        <div>
-          <label>Wave Amplitude: {waveAmplitude}</label>
-          <input 
-            type="range" 
-            min="0" 
-            max="1" 
-            step="0.01" 
-            value={waveAmplitude} 
-            onChange={(e) => setWaveAmplitude(Number(e.target.value))} 
-          />
-        </div>
-        <div>
-          <label>Number of Rows (0 for auto): {numRows}</label>
-          <input 
-            type="range" 
-            min="0" 
-            max="50" 
-            value={numRows} 
-            onChange={(e) => setNumRows(Number(e.target.value))} 
-          />
-        </div>
-        <div>
-          <label>Number of Columns (0 for auto): {numCols}</label>
-          <input 
-            type="range" 
-            min="0" 
-            max="50" 
-            value={numCols} 
-            onChange={(e) => setNumCols(Number(e.target.value))} 
-          />
-        </div>
-      </div>
       <CustomAnimation 
         size={size}
         horizontalSpacing={horizontalSpacing}
         waveFrequency={waveFrequency}
         waveAmplitude={waveAmplitude}
+        randomnessFactor={randomnessFactor}
         numRows={numRows}
         numCols={numCols}
       />
