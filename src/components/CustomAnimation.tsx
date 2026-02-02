@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform, useTime } from 'framer-motion';
 
+const pathFrames = [
+  "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z",
+  "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z",
+  "M1.1 0.5 C1.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,2.66 0.5,2.66 C0.5,2.66 72,108.5 72,108.5 C72,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,106.22 72.62,106.22 C72.62,106.22 1.1,0.5 1.1,0.5z",
+  "M39.6 0.5 C39.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,57.16 0.5,57.16 C0.5,57.16 34,108.49 34,108.49 C34,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,51.09 72.74,51.09 C72.74,51.09 39.6,0.5 39.6,0.5z",
+  "M32.1 0.5 C32.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,47.16 0.5,47.16 C0.5,47.16 41.5,108.49 41.5,108.49 C41.5,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,61.09 72.74,61.09 C72.74,61.09 32.1,0.5 32.1,0.5z"
+];
+
+const keyTimes = [0, 0.0416667, 0.25, 0.5833333, 1];
+
 interface AnimatingIconProps {
   mousePos: {
     x: ReturnType<typeof useMotionValue>;
@@ -12,9 +22,6 @@ interface AnimatingIconProps {
 }
 
 const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequency, waveAmplitude }) => {
-  const pathDataOpen = "M12.1 0.5 C12.1,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,17.16 0.5,17.16 C0.5,17.16 61.5,108.49 61.5,108.49 C61.5,108.49 72.62,108.5 72.62,108.5 C72.62,108.5 72.74,91.09 72.74,91.09 C72.74,91.09 12.1,0.5 12.1,0.5z";
-  const pathDataClose = "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z";
-
   const iconRef = useRef<HTMLDivElement>(null);
   const distance = useMotionValue(Infinity);
   const time = useTime();
@@ -44,7 +51,7 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequ
   const hoverProgress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
   const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency) + 1) / 2 * waveAmplitude);
   const combinedProgress = useTransform([hoverProgress, waveProgress], ([h, w]) => Math.min(h + w, 1));
-  const path = useTransform(combinedProgress, [0, 1], [pathDataClose, pathDataOpen]);
+  const path = useTransform(combinedProgress, keyTimes, pathFrames);
 
   return (
     <div ref={iconRef} style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -66,8 +73,8 @@ interface CustomAnimationProps {
   horizontalSpacing?: number;
   waveFrequency?: number;
   waveAmplitude?: number;
-  numRows?: number; // New prop for explicit number of rows
-  numCols?: number; // New prop for explicit number of columns
+  numRows?: number; 
+  numCols?: number; 
 }
 
 const CustomAnimation: React.FC<CustomAnimationProps> = ({ 
@@ -122,7 +129,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
       style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${displayCols}, ${size - horizontalSpacing}px)`,
-        gridTemplateRows: `repeat(${displayRows}, ${size}px)`, // Use size for row height
+        gridTemplateRows: `repeat(${displayRows}, ${size}px)`, 
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
