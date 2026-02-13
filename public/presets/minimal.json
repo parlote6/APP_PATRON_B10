@@ -2,14 +2,15 @@
   "type": "APP_PATRON_ANIMATION",
   "version": 1,
   "name": "minimal",
+  "exportedAt": "2026-02-13T21:37:18.022Z",
   "settings": {
-    "size": 140,
-    "horizontalSpacing": 52,
-    "verticalSpacing": 52,
-    "waveFrequency": 1600,
-    "waveAmplitude": 0.12,
-    "randomnessFactor": 0,
-    "numRows": 0,
-    "numCols": 0
+    "size": 105,
+    "horizontalSpacing": 32,
+    "verticalSpacing": 51,
+    "waveFrequency": 1430,
+    "waveAmplitude": 0.63,
+    "randomnessFactor": -0.8200000000000003,
+    "numRows": 4,
+    "numCols": 14
   }
 }

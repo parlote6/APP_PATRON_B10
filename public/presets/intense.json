@@ -2,14 +2,15 @@
   "type": "APP_PATRON_ANIMATION",
   "version": 1,
   "name": "intense",
+  "exportedAt": "2026-02-13T21:36:02.300Z",
   "settings": {
-    "size": 95,
-    "horizontalSpacing": 28,
-    "verticalSpacing": 28,
-    "waveFrequency": 600,
-    "waveAmplitude": 0.95,
-    "randomnessFactor": 0.5,
-    "numRows": 0,
-    "numCols": 0
+    "size": 105,
+    "horizontalSpacing": 32,
+    "verticalSpacing": 51,
+    "waveFrequency": 1430,
+    "waveAmplitude": 0.63,
+    "randomnessFactor": 1.1700000000000008,
+    "numRows": 3,
+    "numCols": 5
   }
 }

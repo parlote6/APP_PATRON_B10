@@ -2,14 +2,15 @@
   "type": "APP_PATRON_ANIMATION",
   "version": 1,
   "name": "hero",
+  "exportedAt": "2026-02-13T21:30:34.893Z",
   "settings": {
-    "size": 120,
-    "horizontalSpacing": 34,
-    "verticalSpacing": 34,
-    "waveFrequency": 850,
-    "waveAmplitude": 0.68,
-    "randomnessFactor": 0.25,
-    "numRows": 0,
-    "numCols": 0
+    "size": 105,
+    "horizontalSpacing": 33,
+    "verticalSpacing": 51,
+    "waveFrequency": 1430,
+    "waveAmplitude": 0.61,
+    "randomnessFactor": 0.1,
+    "numRows": 36,
+    "numCols": 19
   }
 }
