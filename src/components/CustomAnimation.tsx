@@ -76,6 +76,7 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequ
 interface CustomAnimationProps {
   size?: number;
   horizontalSpacing?: number;
+  verticalSpacing?: number;
   waveFrequency?: number;
   waveAmplitude?: number;
   randomnessFactor?: number; // New prop for randomness control
@@ -86,6 +87,7 @@ interface CustomAnimationProps {
 const CustomAnimation: React.FC<CustomAnimationProps> = ({ 
   size = 100, 
   horizontalSpacing = 40,
+  verticalSpacing = 40,
   waveFrequency = 1000,
   waveAmplitude = 0.5,
   randomnessFactor = 0, // Default to no randomness
@@ -109,7 +111,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
       
       const effectiveRows = numRows !== undefined && numRows > 0
         ? numRows 
-        : Math.floor(screenHeight / size);
+        : Math.floor(screenHeight / (size - verticalSpacing));
       
       setCalculatedGrid({ cols: effectiveCols, rows: effectiveRows });
     };
@@ -117,7 +119,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
     calculateGrid();
     window.addEventListener('resize', calculateGrid);
     return () => window.removeEventListener('resize', calculateGrid);
-  }, [size, horizontalSpacing, numRows, numCols]);
+  }, [size, horizontalSpacing, verticalSpacing, numRows, numCols]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -136,7 +138,7 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
       style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${displayCols}, ${size - horizontalSpacing}px)`,
-        gridTemplateRows: `repeat(${displayRows}, ${size}px)`, 
+        gridTemplateRows: `repeat(${displayRows}, ${size - verticalSpacing}px)`, 
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',

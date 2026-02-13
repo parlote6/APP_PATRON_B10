@@ -5,6 +5,7 @@ function App() {
   const { 
     size, 
     horizontalSpacing, 
+    verticalSpacing,
     waveFrequency, 
     waveAmplitude, 
     randomnessFactor, 
@@ -13,6 +14,7 @@ function App() {
   } = useControls({
     size: { value: 100, min: 20, max: 200, step: 1, label: 'size' },
     horizontalSpacing: { value: 40, min: 0, max: 80, step: 1, label: 'horizontalSpacing' },
+    verticalSpacing: { value: 40, min: 0, max: 80, step: 1, label: 'verticalSpacing' },
     waveFrequency: { value: 1000, min: 100, max: 2000, step: 10, label: 'waveFrequency' },
     waveAmplitude: { value: 0.5, min: 0, max: 1, step: 0.01, label: 'waveAmplitude' },
     randomnessFactor: { value: 0, step: 0.01, label: 'randomnessFactor' },
@@ -25,6 +27,7 @@ function App() {
       <CustomAnimation 
         size={size}
         horizontalSpacing={horizontalSpacing}
+        verticalSpacing={verticalSpacing}
         waveFrequency={waveFrequency}
         waveAmplitude={waveAmplitude}
         randomnessFactor={randomnessFactor}
