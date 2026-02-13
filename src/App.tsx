@@ -24,11 +24,27 @@ const DEFAULT_SETTINGS: AnimationSettings = {
   numCols: 0,
 };
 
+const parseNumberParam = (value: string | null): number | undefined => {
+  if (value === null) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
 function App() {
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
   const isEmbed = searchParams.get('embed') === '1';
   const presetId = searchParams.get('p');
   const [presetSettings, setPresetSettings] = useState<AnimationSettings | null>(null);
+  const urlSettings = useMemo<Partial<AnimationSettings>>(() => ({
+    size: parseNumberParam(searchParams.get('size')),
+    horizontalSpacing: parseNumberParam(searchParams.get('horizontalSpacing')),
+    verticalSpacing: parseNumberParam(searchParams.get('verticalSpacing')),
+    waveFrequency: parseNumberParam(searchParams.get('waveFrequency')),
+    waveAmplitude: parseNumberParam(searchParams.get('waveAmplitude')),
+    randomnessFactor: parseNumberParam(searchParams.get('randomnessFactor')),
+    numRows: parseNumberParam(searchParams.get('numRows')),
+    numCols: parseNumberParam(searchParams.get('numCols')),
+  }), [searchParams]);
 
   useEffect(() => {
     if (!presetId) return;
@@ -71,9 +87,7 @@ function App() {
     numCols: { value: DEFAULT_SETTINGS.numCols, min: 0, max: 50, step: 1, label: 'numCols' },
   });
 
-  const effectiveSettings = isEmbed && presetSettings
-    ? presetSettings
-    : {
+  const controlSettings: AnimationSettings = {
         size,
         horizontalSpacing,
         verticalSpacing,
@@ -83,6 +97,11 @@ function App() {
         numRows,
         numCols,
       };
+
+  const embedBaseSettings = presetSettings ?? DEFAULT_SETTINGS;
+  const effectiveSettings: AnimationSettings = isEmbed
+    ? { ...embedBaseSettings, ...urlSettings }
+    : controlSettings;
 
   const handleExportJson = () => {
     const animationConfig = {
@@ -113,30 +132,74 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleCopyEmbedUrl = async () => {
+    const params = new URLSearchParams({
+      embed: '1',
+      size: String(controlSettings.size),
+      horizontalSpacing: String(controlSettings.horizontalSpacing),
+      verticalSpacing: String(controlSettings.verticalSpacing),
+      waveFrequency: String(controlSettings.waveFrequency),
+      waveAmplitude: String(controlSettings.waveAmplitude),
+      randomnessFactor: String(controlSettings.randomnessFactor),
+      numRows: String(controlSettings.numRows),
+      numCols: String(controlSettings.numCols),
+    });
+    const embedUrl = `${window.location.origin}/?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(embedUrl);
+      window.alert('Embed URL copied');
+    } catch {
+      window.prompt('Copy this Embed URL:', embedUrl);
+    }
+  };
+
   return (
     <div>
       <Leva hidden={isEmbed} />
       {!isEmbed && (
-        <button
-          onClick={handleExportJson}
+        <div
           style={{
             position: 'fixed',
             bottom: 16,
             left: 16,
             zIndex: 9999,
-            border: 'none',
-            borderRadius: 10,
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: 'pointer',
-            color: '#fff',
-            background: '#ff5521',
-            boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+            display: 'flex',
+            gap: 8,
           }}
         >
-          Export JSON
-        </button>
+          <button
+            onClick={handleExportJson}
+            style={{
+              border: 'none',
+              borderRadius: 10,
+              padding: '10px 14px',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              color: '#fff',
+              background: '#ff5521',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+            }}
+          >
+            Export JSON
+          </button>
+          <button
+            onClick={handleCopyEmbedUrl}
+            style={{
+              border: 'none',
+              borderRadius: 10,
+              padding: '10px 14px',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              color: '#fff',
+              background: '#1d4ed8',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+            }}
+          >
+            Copy Embed URL
+          </button>
+        </div>
       )}
       <CustomAnimation 
         size={effectiveSettings.size}
