@@ -22,8 +22,57 @@ function App() {
     numCols: { value: 0, min: 0, max: 50, step: 1, label: 'numCols' },
   });
 
+  const handleExportJson = () => {
+    const animationConfig = {
+      type: 'APP_PATRON_ANIMATION',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: {
+        size,
+        horizontalSpacing,
+        verticalSpacing,
+        waveFrequency,
+        waveAmplitude,
+        randomnessFactor,
+        numRows,
+        numCols,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(animationConfig, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    link.href = url;
+    link.download = `app-patron-animation-${timestamp}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
+      <button
+        onClick={handleExportJson}
+        style={{
+          position: 'fixed',
+          top: 16,
+          right: 16,
+          zIndex: 1000,
+          border: 'none',
+          borderRadius: 10,
+          padding: '10px 14px',
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer',
+          color: '#fff',
+          background: '#111',
+          boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+        }}
+      >
+        Export JSON
+      </button>
       <CustomAnimation 
         size={size}
         horizontalSpacing={horizontalSpacing}
