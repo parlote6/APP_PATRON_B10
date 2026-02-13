@@ -1,0 +1,15 @@
+{
+  "type": "APP_PATRON_ANIMATION",
+  "version": 1,
+  "name": "hero",
+  "settings": {
+    "size": 120,
+    "horizontalSpacing": 34,
+    "verticalSpacing": 34,
+    "waveFrequency": 850,
+    "waveAmplitude": 0.68,
+    "randomnessFactor": 0.25,
+    "numRows": 0,
+    "numCols": 0
+  }
+}

@@ -107,14 +107,16 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
     const calculateGrid = () => {
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
+      const cellWidth = Math.max(1, size - horizontalSpacing);
+      const cellHeight = Math.max(1, size - verticalSpacing);
       
       const effectiveCols = numCols !== undefined && numCols > 0
         ? numCols 
-        : Math.floor(screenWidth / (size - horizontalSpacing));
+        : Math.max(1, Math.floor(screenWidth / cellWidth));
       
       const effectiveRows = numRows !== undefined && numRows > 0
         ? numRows 
-        : Math.floor(screenHeight / (size - verticalSpacing));
+        : Math.max(1, Math.floor(screenHeight / cellHeight));
       
       setCalculatedGrid({ cols: effectiveCols, rows: effectiveRows });
     };
@@ -133,15 +135,17 @@ const CustomAnimation: React.FC<CustomAnimationProps> = ({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mousePos.x, mousePos.y]);
 
-  const displayCols = numCols !== undefined ? numCols : calculatedGrid.cols;
-  const displayRows = numRows !== undefined ? numRows : calculatedGrid.rows;
+  const displayCols = numCols !== undefined && numCols > 0 ? numCols : calculatedGrid.cols;
+  const displayRows = numRows !== undefined && numRows > 0 ? numRows : calculatedGrid.rows;
+  const cellWidth = Math.max(1, size - horizontalSpacing);
+  const cellHeight = Math.max(1, size - verticalSpacing);
 
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${displayCols}, ${size - horizontalSpacing}px)`,
-        gridTemplateRows: `repeat(${displayRows}, ${size - verticalSpacing}px)`, 
+        gridTemplateColumns: `repeat(${displayCols}, ${cellWidth}px)`,
+        gridTemplateRows: `repeat(${displayRows}, ${cellHeight}px)`, 
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',

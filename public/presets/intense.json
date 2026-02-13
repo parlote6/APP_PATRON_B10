@@ -1,0 +1,15 @@
+{
+  "type": "APP_PATRON_ANIMATION",
+  "version": 1,
+  "name": "intense",
+  "settings": {
+    "size": 95,
+    "horizontalSpacing": 28,
+    "verticalSpacing": 28,
+    "waveFrequency": 600,
+    "waveAmplitude": 0.95,
+    "randomnessFactor": 0.5,
+    "numRows": 0,
+    "numCols": 0
+  }
+}

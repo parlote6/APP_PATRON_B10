@@ -1,0 +1,15 @@
+{
+  "type": "APP_PATRON_ANIMATION",
+  "version": 1,
+  "name": "minimal",
+  "settings": {
+    "size": 140,
+    "horizontalSpacing": 52,
+    "verticalSpacing": 52,
+    "waveFrequency": 1600,
+    "waveAmplitude": 0.12,
+    "randomnessFactor": 0,
+    "numRows": 0,
+    "numCols": 0
+  }
+}
