@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform, useTime } from 'framer-motion';
+import type { MotionValue } from 'framer-motion';
 
 const pathFrames = [
   "M3.6 0.5 C3.6,0.5 0.5,0.5 0.5,0.5 C0.5,0.5 0.5,5.16 0.5,5.16 C0.5,5.16 69.5,108.5 69.5,108.5 C69.5,108.5 72.62,108.5 72.62,108.5 C72.62,108.5 72.62,103.84 72.62,103.84 C72.62,103.84 3.6,0.5 3.6,0.5z",
@@ -11,8 +12,8 @@ const keyTimes = [0, 0.375, 1];
 
 interface AnimatingIconProps {
   mousePos: {
-    x: ReturnType<typeof useMotionValue>;
-    y: ReturnType<typeof useMotionValue>;
+    x: MotionValue<number>;
+    y: MotionValue<number>;
   };
   size: number;
   waveFrequency: number;
@@ -49,10 +50,12 @@ const AnimatingIcon: React.FC<AnimatingIconProps> = ({ mousePos, size, waveFrequ
   }, [mousePos.x, mousePos.y, distance]);
   
   const hoverProgress = useTransform(distance, [0, size * 2], [1, 0], { clamp: true });
-  const waveProgress = useTransform(time, value => (Math.sin(value / waveFrequency + randomSeed.current * randomnessFactor * 10) + 1) / 2 * waveAmplitude); // Add randomSeed to wave phase
+  const waveProgress = useTransform(time, (value: number) => (Math.sin(value / waveFrequency + randomSeed.current * randomnessFactor * 10) + 1) / 2 * waveAmplitude); // Add randomSeed to wave phase
   
   // Combine hover and wave
-  const combinedProgress = useTransform([hoverProgress, waveProgress], ([h, w]) => {
+  const combinedProgress = useTransform(() => {
+    const h = hoverProgress.get();
+    const w = waveProgress.get();
     return Math.min(Math.max(0, h + w), 1); // Clamp between 0 and 1
   });
   
